@@ -35,10 +35,19 @@ if errorlevel 1 (
 echo Очікування перед видаленням проекту...
 timeout /t 5 >nul
 
+:: Зняття атрибутів з файлів, якщо вони є "тільки для читання"
+if exist "!project_path!" (
+    attrib -r -h -s "!project_path!\*" /s /d >nul 2>&1
+)
+
 :: Видалення каталогу проекту
 if exist "!project_path!" (
-    rmdir /S /Q "!project_path!"
-    echo Проект успішно видалено.
+    rmdir /S /Q "!project_path!" >nul 2>&1
+    if errorlevel 1 (
+        echo Помилка: не вдалося видалити проект. Файли або каталоги заблоковані.
+    ) else (
+        echo Проект успішно видалено.
+    )
 ) else (
     echo Помилка: каталог проекту не знайдено.
 )
